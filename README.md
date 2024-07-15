@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+## ​👉1. ​Deployment 
 
-First, run the development server:
+O projeto nextJS deverá conter um arquivo docker com as seguintes instruções:
 
+**Dockerfile**:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+FROM node:latest
+
+WORKDIR /usr/src/app
+
+COPY . .
+RUN npm install
+RUN npm run build
+CMD ["npm", "start"]
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Para executar a aplicação nextJS como um container no docker, siga os comandos:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```
+docker build -t <NOME_IMAGEM> .
+```
+```
+docker run -d --name app_nextjs -p <porta>:<porta> <NOME_IMAGEM>:latest
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## ​👉🏼​ 2. Integração com DockerHub
 
-## Learn More
+Caso seja necessário rodar o container contendo o build docker da aplicação em um servidor, siga os passos a seguir:
 
-To learn more about Next.js, take a look at the following resources:
+*Ambiente de desenvolvimento:*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+docker build -t <NOME_IMAGEM> .
+docker login
+docker tag <NOME_IMAGEM> <usuario_dockerhub>/<NOME_IMAGEM>
+docker push <usuario_dockerhub>/<NOME_IMAGEM>
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```
 
-## Deploy on Vercel
+*Servidor:*
+```
+docker login
+docker pull <usuario_dockerhub>/<NOME_IMAGEM>
+docker run -d --name <NOME_APLICACAO> -p <porta>:<porta> <usuario_dockerhub>/<NOME_IMAGEM>:latest
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## ​👉🏼​ 3. WebServer (Nginx)
+
+**Fluxo:**
+Imaginando o cenário onde o usuário 
+digite o URL "apps.ham.org.br/minhaaplicacao", deverá ser mostrado pra ele a aplicação que está rodando em docker no servidor.
+
+Diretório: "/etc/nginx/sites-enabled/site.conf":
+
+```
+  location /aplicacao {
+    proxy_pass http://localhost:<PORTA_APLICACAO_DOCKER>;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+  }
+
+```
+
+Com essas definições, será exibido o build da aplicação nextJS quando o usuário acessar /aplicacao.
