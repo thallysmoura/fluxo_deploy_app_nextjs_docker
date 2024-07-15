@@ -65,3 +65,7 @@ Diretório: "/etc/nginx/sites-enabled/site.conf":
 ```
 
 Com essas definições, será exibido o build da aplicação nextJS quando o usuário acessar /aplicacao.
+## Autores
+
+- [@thallysmoura](https://github.com/thallysmoura)
+
