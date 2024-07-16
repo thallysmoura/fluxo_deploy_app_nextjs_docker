@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 
+import Button from './components/Button';
 
 export default function Home() {
   return (
@@ -10,6 +11,9 @@ export default function Home() {
       <Link className="text-sm font-semibold text-gray-900" href="/contact">
               Contact support <span aria-hidden="true">&rarr;</span>
       </Link>
+      <Button>
+        test
+      </Button>
     </main>
   );
 }
